@@ -115,12 +115,4 @@ Browser-Specific Data: Remember that IndexedDB data is stored per browser and pe
 
 Master Password: The security of your vault entirely depends on the strength and secrecy of your master password. Choose a strong, unique password and do not forget it!
 
-Project Structure
-.
-├── package.json
-├── package-lock.json
-├── server.js               # Node.js server to serve static files (includes Helmet for security headers)
-└── public/
-    ├── index.html          # Main HTML file for the application UI
-    ├── app.js              # Client-side JavaScript logic (encryption, IndexedDB, UI interactions)
-    └── style.css           # Tailwind CSS and custom styles
+
