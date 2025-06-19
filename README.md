@@ -86,10 +86,9 @@ npm (Node Package Manager, usually comes with Node.js)
 Installation
 Clone the repository:
 
-git clone https://github.com/your-username/secure-password-vault.git
+git clone https://github.com/your-username/secure-password-vault.git](https://github.com/manojbn08/Secure-Vault.git
 cd secure-password-vault
 
-(Note: If this is a Canvas-specific project, you might directly get the files and skip git clone)
 
 Install dependencies:
 This project uses express and helmet for serving files.
