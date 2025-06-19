@@ -1,0 +1,135 @@
+/* public/style.css */
+
+/* Basic body and font styling */
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for better aesthetics */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Modal Overlay Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it's on top of other content */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex; /* Explicitly show when active */
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal Content Styles */
+.modal-content {
+    background-color: #fff;
+    padding: 2.5rem; /* Increased padding */
+    border-radius: 0.75rem; /* More rounded corners */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+    width: 90%; /* Responsive width */
+    max-width: 500px; /* Max width for larger screens */
+    transform: translateY(-20px); /* Initial slight translateY for animation */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Input focus styles */
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #3b82f6; /* Blue-500 */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Blue-500 with alpha */
+}
+
+/* Button hover effects */
+button {
+    transition: all 0.2s ease-in-out;
+}
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Specific styling for vault entry cards */
+.vault-entry {
+    background-color: #f8fafc; /* Light gray background */
+    border: 1px solid #e2e8f0; /* Light border */
+    transition: all 0.2s ease;
+}
+
+.vault-entry:hover {
+    background-color: #f1f5f9; /* Slightly darker on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* Utility classes for messages */
+.message-success {
+    background-color: #d1fae5; /* green-100 */
+    color: #065f46; /* green-800 */
+}
+
+.message-error {
+    background-color: #fee2e2; /* red-100 */
+    color: #991b1b; /* red-800 */
+}
+
+.message-info {
+    background-color: #e0f2fe; /* blue-100 */
+    color: #1e40af; /* blue-800 */
+}
+
+/* Placeholder for master password input when it's hidden after setup */
+#auth-screen #confirm-password-group.hidden {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 1.5rem;
+    }
+
+    #vault-view .flex-col.md\:flex-row {
+        flex-direction: column;
+    }
+
+    #vault-view .md\:space-x-4 > *:not(:last-child) {
+        margin-right: 0;
+        margin-bottom: 1rem; /* Add some space between stacked buttons/inputs */
+    }
+}

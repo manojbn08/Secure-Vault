@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Vault</title>
+    <!-- Tailwind CSS CDN for modern and responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom styles for the app -->
+    <link rel="stylesheet" href="/style.css"> <!-- Changed to absolute path -->
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Loading message - visible until app or error loads -->
+    <div id="loading-message" class="absolute inset-0 flex items-center justify-center text-gray-500 text-lg font-medium">
+        Loading application...
+    </div>
+
+    <!-- Global Error Display Area - Always visible if activated by JS, independent of app-container -->
+    <div id="global-error-message" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 rounded-lg text-lg text-center bg-red-100 text-red-800 shadow-lg hidden z-50 max-w-md w-full mx-4" role="alert">
+        <p class="font-bold mb-2">An error occurred:</p>
+        <p id="global-error-text"></p>
+        <p class="mt-4 text-sm text-red-700">Please check your browser console (F12) for more details.</p>
+    </div>
+
+    <!-- Main application container -->
+    <div id="app-container" class="bg-white rounded-lg shadow-xl w-full max-w-2xl overflow-hidden hidden">
+        <!-- Header Section -->
+        <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 flex justify-between items-center rounded-t-lg">
+            <h1 class="text-3xl font-bold tracking-tight">Secure Vault</h1>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <span id="status-icon" class="text-yellow-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                        </svg>
+                    </span>
+                    <span id="status-text" class="text-sm font-medium">Locked</span>
+                </div>
+                <button id="lock-button" class="bg-blue-800 hover:bg-blue-900 text-white py-1 px-3 rounded-full text-sm font-semibold transition duration-200 hidden">
+                    Lock Vault
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-6">
+            <!-- Message Display Area -->
+            <div id="message-box" class="hidden mb-4 p-3 rounded-lg text-sm text-center" role="alert"></div>
+
+            <!-- Initial Setup / Unlock Screen -->
+            <section id="auth-screen" class="space-y-6">
+                <h2 id="auth-title" class="text-2xl font-semibold text-gray-800 text-center">Set Up Master Password</h2>
+                <p id="auth-description" class="text-gray-600 text-center">Create a strong master password to secure your vault. This password will never be stored.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label for="master-password" class="block text-sm font-medium text-gray-700 mb-1">Vault Master Password</label>
+                        <input type="password" id="master-password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150" placeholder="Enter your vault master password">
+                    </div>
+                    <div id="confirm-password-group">
+                        <label for="confirm-master-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Master Password</label>
+                        <input type="password" id="confirm-master-password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150" placeholder="Confirm your vault master password">
+                    </div>
+                    <button id="auth-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-200 ease-in-out shadow-md hover:shadow-lg">
+                        Set Master Password
+                    </button>
+                    <button id="import-existing-vault-button" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-md transition duration-200 ease-in-out shadow-md hover:shadow-lg mt-2 hidden">
+                        Import Existing Vault
+                    </button>
+                </div>
+            </section>
+
+            <!-- Vault View (Hidden initially) -->
+            <section id="vault-view" class="hidden">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0 md:space-x-4">
+                    <input type="text" id="search-vault" placeholder="Search entries..." class="flex-grow p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    <div class="flex space-x-2">
+                        <button id="add-entry-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-200 shadow-md hover:shadow-lg flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            Add Entry
+                        </button>
+                        <button id="generate-password-button" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-md transition duration-200 shadow-md hover:shadow-lg flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L16.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 12h.008v.008h-.008V12Zm2.25 2.25h.008v.008H21v-.008Zm-2.25 2.25h.008v.008h-.008V16.5Zm2.25 2.25h.008v.008H21v-.008Zm0-12H18.75v-.008h.008V6.75Z" />
+                            </svg>
+                            Generate
+                        </button>
+                    </div>
+                </div>
+
+                <div id="vault-list" class="space-y-4">
+                    <!-- Vault entries will be rendered here by JavaScript -->
+                    <p class="text-center text-gray-500" id="no-entries-message">No entries yet. Click "Add Entry" to get started!</p>
+                </div>
+
+                <!-- Data Export Section -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Vault Management</h3>
+                    <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
+                        <button id="change-master-password-button" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-md transition duration-200 shadow-md hover:shadow-lg flex-grow flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                            </svg>
+                            Change Master Password
+                        </button>
+                        <button id="export-vault-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-md transition duration-200 shadow-md hover:shadow-lg flex-grow flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 9.75l-7.5 7.5-7.5-7.5" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21V6" />
+                            </svg>
+                            Export Vault
+                        </button>
+                        <input type="file" id="import-vault-file-input" accept=".json" class="hidden">
+                        <button id="trigger-import-vault-button" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-md transition duration-200 shadow-md hover:shadow-lg flex-grow flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                            </svg>
+                            Import Vault
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals (Hidden by default) -->
+
+    <!-- Add/Edit Entry Modal -->
+    <div id="entry-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="entry-modal-title" class="text-2xl font-semibold text-gray-800 mb-6 text-center">Add New Entry</h2>
+            <form id="entry-form" class="space-y-4">
+                <div>
+                    <label for="entry-url" class="block text-sm font-medium text-gray-700 mb-1">Website URL</label>
+                    <input type="url" id="entry-url" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., https://example.com" required>
+                </div>
+                <div>
+                    <label for="entry-username" class="block text-sm font-medium text-gray-700 mb-1">Username/Email</label>
+                    <input type="text" id="entry-username" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., your.email@example.com" required>
+                </div>
+                <div>
+                    <label for="entry-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <div class="relative">
+                        <input type="password" id="entry-password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pr-12" placeholder="Your password" required>
+                        <button type="button" id="toggle-entry-password-visibility" class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-600 hover:text-gray-900">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label for="entry-notes" class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+                    <textarea id="entry-notes" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Any additional notes"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" id="cancel-entry-button" class="px-5 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition duration-150">Cancel</button>
+                    <button type="submit" id="save-entry-button" class="px-5 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700 transition duration-150">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Password Generator Modal -->
+    <div id="generator-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Generate Strong Password</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="generated-password-display" class="block text-sm font-medium text-gray-700 mb-1">Generated Password</label>
+                    <div class="flex">
+                        <input type="text" id="generated-password-display" class="flex-grow p-3 border border-gray-300 rounded-l-md bg-gray-50 cursor-text select-all" readonly>
+                        <button type="button" id="copy-generated-password" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 rounded-r-md transition duration-150 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v-3.004m0 0l-1.427 1.427M15.75 14.246 17.173 15.67M18 19.5H6a2.25 2.25 0 0 1-2.25-2.25V6.75A2.25 2.25 0 0 1 6 4.5h11.25c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25Z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p id="generated-password-strength" class="text-sm mt-2 font-medium"></p>
+                </div>
+                <div>
+                    <label for="password-length" class="block text-sm font-medium text-gray-700 mb-1">Length: <span id="length-value">16</span></label>
+                    <input type="range" id="password-length" min="8" max="64" value="16" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+                <div class="grid grid-cols-2 gap-x-4">
+                    <label class="flex items-center text-gray-700">
+                        <input type="checkbox" id="include-uppercase" checked class="form-checkbox h-4 w-4 text-blue-600 rounded">
+                        <span class="ml-2 text-sm">Uppercase (A-Z)</span>
+                    </label>
+                    <label class="flex items-center text-gray-700">
+                        <input type="checkbox" id="include-lowercase" checked class="form-checkbox h-4 w-4 text-blue-600 rounded">
+                        <span class="ml-2 text-sm">Lowercase (a-z)</span>
+                    </label>
+                    <label class="flex items-center text-gray-700">
+                        <input type="checkbox" id="include-numbers" checked class="form-checkbox h-4 w-4 text-blue-600 rounded">
+                        <span class="ml-2 text-sm">Numbers (0-9)</span>
+                    </label>
+                    <label class="flex items-center text-gray-700">
+                        <input type="checkbox" id="include-symbols" class="form-checkbox h-4 w-4 text-blue-600 rounded">
+                        <span class="ml-2 text-sm">Symbols (!@#$)</span>
+                    </label>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" id="cancel-generator-button" class="px-5 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
+                    <button type="button" id="generate-new-password-button" class="px-5 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700">Generate New</button>
+                    <button type="button" id="use-generated-password-button" class="px-5 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700">Use This</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Deletion Modal -->
+    <div id="confirm-delete-modal" class="modal-overlay hidden">
+        <div class="modal-content max-w-sm">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">Confirm Deletion</h2>
+            <p class="text-gray-700 text-center mb-6">Are you sure you want to delete this vault entry? This action cannot be undone.</p>
+            <div class="flex justify-center space-x-4">
+                <button type="button" id="cancel-delete-button" class="px-5 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
+                <button type="button" id="confirm-delete-button" class="px-5 py-2 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Master Password Modal -->
+    <div id="change-master-password-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Change Master Password</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="current-master-password" class="block text-sm font-medium text-gray-700 mb-1">Current Master Password</label>
+                    <input type="password" id="current-master-password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Enter your current master password">
+                </div>
+                <div>
+                    <label for="new-master-password" class="block text-sm font-medium text-gray-700 mb-1">New Master Password</label>
+                    <input type="password" id="new-master-password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Enter new master password">
+                </div>
+                <div>
+                    <label for="confirm-new-master-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm New Master Password</label>
+                    <input type="password" id="confirm-new-master-password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Confirm new master password">
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" id="cancel-change-password-button" class="px-5 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</button>
+                    <button type="button" id="save-new-master-password-button" class="px-5 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700">Save New Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/app.js"></script> <!-- Changed to absolute path -->
+</body>
+</html>
