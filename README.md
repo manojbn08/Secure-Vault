@@ -1,117 +1,135 @@
-Secure Client-Side Password Vault
-A robust and secure browser-based password manager designed with a zero-trust approach, storing all encrypted password data locally on the user's device using IndexedDB. This project emphasizes strong client-side encryption and minimal server interaction for maximum user control and privacy.
+# 🔐 Secure Client-Side Password Vault
 
-About The Project
-This project implements a client-side password vault, providing users with a secure way to manage their credentials without relying on cloud synchronization for sensitive data. It operates entirely within the user's browser, encrypting and decrypting data locally. The accompanying Node.js server is minimal, serving only static files, thus greatly reducing the attack surface commonly associated with traditional web applications.
+A robust and secure browser-based password manager designed with a **zero-trust** approach, storing all encrypted password data **locally** on the user's device using **IndexedDB**. This project emphasizes strong **client-side encryption** and minimal server interaction for maximum user control and privacy.
 
-The design philosophy adheres strictly to "zero-trust" principles, ensuring that sensitive information is never transmitted or stored unencrypted on any server.
+---
 
-Features
-Master Password Authentication: Secure access to the vault using a single master password. The master password itself is never stored.
+## 🧠 About the Project
 
-Secure Client-Side Encryption: All vault entries (website URL, username, password, notes) are encrypted using strong cryptographic algorithms directly in the browser before being stored.
+This project implements a **client-side password vault**, allowing users to manage credentials without relying on cloud storage. All encryption/decryption happens **locally in the browser**.
 
-Local Data Storage (IndexedDB): Encrypted vault data persists locally in the user's browser, ensuring data remains on their device.
+A lightweight **Node.js server** is used only to serve static files, significantly reducing the attack surface found in traditional web apps.
 
-Add/Edit/Delete Entries: Full CRUD (Create, Read, Update, Delete) functionality for managing password entries.
+> The system adheres strictly to **zero-trust principles**, ensuring no sensitive data is transmitted or stored unencrypted on any server.
 
-Password Generator: Generate strong, random passwords with customizable length and character sets (uppercase, lowercase, numbers, symbols). Includes a basic password strength indicator.
+---
 
-Copy to Clipboard: Convenient one-click copying of usernames and passwords. Sensitive data is automatically overwritten in the clipboard after a short delay for enhanced security.
+## 🚀 Features
 
-Vault Export & Import: Users can export their entire encrypted vault as a JSON file for backup and re-import it, requiring their master password for re-encryption and access.
+- **Master Password Authentication**  
+  Secure vault access using a master password — never stored.
 
-Change Master Password: Allows users to securely update their master password, re-encrypting the vault's key with the new password.
+- **Secure Client-Side Encryption**  
+  All entries (URL, username, password, notes) are encrypted using AES-256-GCM directly in the browser.
 
-Automatic Autolock: The vault automatically locks after a period of inactivity, clearing sensitive data from memory to protect against unauthorized access when a device is left unattended.
+- **Local Storage with IndexedDB**  
+  Vault data is stored locally and never leaves the user’s device.
 
-Responsive Design: A clean and modern user interface built with Tailwind CSS, ensuring usability across various device sizes.
+- **CRUD Functionality**  
+  Add, edit, delete, and view password entries.
 
-Security Highlights
-This project's security model is built upon robust client-side implementations, inherently mitigating many common web vulnerabilities:
+- **Password Generator**  
+  Strong, customizable password generation with a strength indicator.
 
-Zero-Trust Data Handling: No sensitive data ever leaves the client's browser unencrypted. The server acts purely as a static file server.
+- **Clipboard Copying**  
+  One-click copy with automatic clipboard clearing after a short delay.
 
-Strong Key Derivation (PBKDF2):
+- **Vault Export & Import**  
+  Export encrypted vault to JSON for backup and re-import using the master password.
 
-Uses PBKDF2 with SHA-256 and 100,000 iterations to derive cryptographic keys from the master password.
+- **Change Master Password**  
+  Re-encrypt the vault with a new password securely.
 
-Incorporates a unique, randomly generated salt for each vault to prevent rainbow table attacks.
+- **Auto-Lock**  
+  Automatically locks the vault after inactivity.
 
-The master password is never stored.
+- **Responsive UI**  
+  Clean, modern interface built with **Tailwind CSS**.
 
-Authenticated Encryption (AES-256-GCM):
+---
 
-Vault entries are encrypted using AES-256 in Galois/Counter Mode, providing both confidentiality (encryption) and integrity/authenticity (tamper detection).
+## 🔒 Security Highlights
 
-Uses unique Initialization Vectors (IVs) for each encryption operation to ensure high security.
+- **Zero-Trust Data Handling**  
+  Data never leaves the browser unencrypted.
 
-Inherent Mitigation of Server-Side Vulnerabilities:
+- **Strong Key Derivation (PBKDF2)**  
+  - PBKDF2 with SHA-256 and 100,000 iterations  
+  - Unique salt per vault  
+  - Master password never stored
 
-NoSQL/SQL Injection, CSRF, SSRF, Command Injection, XXE, HTTP Request Smuggling, Web Cache Poisoning, Insecure Deserialization: These vulnerabilities are fundamentally averted by the client-side design, as there are no corresponding server-side components to exploit.
+- **AES-256-GCM Encryption**  
+  - Authenticated encryption for confidentiality and integrity  
+  - Unique IVs per operation
 
-Clickjacking: Mitigation is typically handled by server-side HTTP security headers (X-Frame-Options or Content-Security-Policy: frame-ancestors), which are expected to be configured in the server.js (e.g., via helmet middleware).
+- **Inherent Server-Side Protection**  
+  Server-side vulnerabilities like SQL injection, CSRF, SSRF, etc., are irrelevant due to client-side design.
 
-Client-Side Vulnerability Awareness: While the design reduces server-side risks, continuous attention is given to preventing client-side vulnerabilities like Cross-Site Scripting (XSS) through careful DOM manipulation and input sanitization practices.
+- **Clickjacking Mitigation**  
+  Use of `helmet.js` for setting HTTP security headers like `X-Frame-Options`.
 
-Technologies Used
-Frontend:
+- **Client-Side XSS Awareness**  
+  Careful DOM handling and input sanitization reduce risk of XSS.
 
-HTML5: Structure of the web application.
+---
 
-CSS3 (Tailwind CSS): For modern, responsive, and utility-first styling.
+## 🧰 Technologies Used
 
-JavaScript (ES6+): Core logic for encryption, decryption, IndexedDB interaction, and UI manipulation.
+### Frontend
 
-Web Cryptography API: Utilized for secure cryptographic operations (PBKDF2, AES-GCM).
+- **HTML5** – Structure
+- **Tailwind CSS** – Utility-first styling
+- **JavaScript (ES6+)** – Logic for encryption, storage, UI
+- **Web Crypto API** – PBKDF2, AES-GCM
+- **IndexedDB API** – Local encrypted storage
 
-IndexedDB API: For persistent local storage of encrypted vault data.
+### Backend (Static File Server)
 
-Backend (Static File Server Only):
+- **Node.js**
+- **Express.js**
+- **Helmet.js**
 
-Node.js: Runtime environment.
+---
 
-Express.js: Minimalist web framework to serve static files.
+## 🛠️ Getting Started
 
-Helmet.js: Express middleware for setting various HTTP security headers, enhancing overall application security (e.g., preventing clickjacking).
+### ✅ Prerequisites
 
-Getting Started
-Follow these steps to get your Secure Password Vault up and running on your local machine.
+- [Node.js (LTS)](https://nodejs.org/)
+- npm (comes with Node.js)
 
-Prerequisites
-Node.js (LTS version recommended)
+### 📦 Installation
 
-npm (Node Package Manager, usually comes with Node.js)
-
-Installation
-Clone the repository:
-
-git clone https://github.com/your-username/secure-password-vault.git](https://github.com/manojbn08/Secure-Vault.git
-cd secure-password-vault
-
-
-Install dependencies:
-This project uses express and helmet for serving files.
-
+```bash
+git clone https://github.com/manojbn08/Secure-Vault.git
+cd Secure-Vault
 npm install
+## ▶️ Running the Application
 
-Running the Application
-Start the Node.js server:
-
+```bash
 npm start
+Visit: [http://localhost:3000](http://localhost:3000)
 
-You should see a message in your console indicating that the server is running, usually on http://localhost:3000.
+---
 
-Access the application:
-Open your web browser and navigate to http://localhost:3000.
+## 💡 Usage Guide
 
-First-time use: You will be prompted to set up a new master password.
+**First Visit:**  
+Set a new master password.
 
-Subsequent visits: You will be prompted to unlock your vault with your master password.
+**Returning Users:**  
+Enter your master password to unlock the vault.
 
-Important Notes for Testing:
-Browser-Specific Data: Remember that IndexedDB data is stored per browser and per origin. If you switch browsers or clear your browser's site data, your vault will appear empty, and you'll need to set up a new one or import an existing encrypted backup.
+---
 
-Master Password: The security of your vault entirely depends on the strength and secrecy of your master password. Choose a strong, unique password and do not forget it!
+## ⚠️ Important Notes
 
+**Browser-Specific Data:**  
+IndexedDB is specific to each browser and domain. Switching browsers or clearing site data resets the vault unless you've exported it.
 
+**Master Password:**  
+Your vault's security depends entirely on your master password. Choose something **strong and unique**, and **do not forget it** — it **cannot** be recovered.
+
+---
+
+Made with ❤️ to keep your credentials safe.
